@@ -11,6 +11,7 @@ class NoteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_note)
 
+
         backButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
             finish()
