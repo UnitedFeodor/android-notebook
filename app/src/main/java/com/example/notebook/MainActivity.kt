@@ -3,15 +3,22 @@ package com.example.notebook
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.notebook.model.Note
+import com.example.notebook.view.NoteAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
      private lateinit var fab: FloatingActionButton
      private lateinit var menuImage: ImageView
+
+    lateinit var notes: ArrayList<Note>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +55,18 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, NoteActivity::class.java)
             startActivity(intent)
         }
+
+        // Lookup the recyclerview in activity layout
+        val rvContacts = findViewById<View>(R.id.recyclerView) as RecyclerView
+        // Initialize contacts
+        notes = Note.createNotesList(20)
+        // Create adapter passing in the sample user data
+        val adapter = NoteAdapter(notes)
+        // Attach the adapter to the recyclerview to populate items
+        rvContacts.adapter = adapter
+        // Set layout manager to position the items
+        rvContacts.layoutManager = LinearLayoutManager(this)
+        // That's all!
 
     }
 }
