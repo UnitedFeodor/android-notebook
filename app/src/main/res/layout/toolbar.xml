@@ -19,7 +19,7 @@
             android:textColor="@color/white"
             />
         <ImageView
-            android:id="@+id/settingsImage"
+            android:id="@+id/menuImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
