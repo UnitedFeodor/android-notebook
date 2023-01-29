@@ -8,6 +8,7 @@
 
     <EditText
         android:id="@+id/editTitle"
+        android:layout_toEndOf="@id/backButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -43,15 +44,17 @@
 
     <ImageButton
         android:id="@+id/backButton"
-        android:backgroundTint="@color/white"
-        app:tint="@color/purple_200"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_arrow_back_white"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_alignLeft="@id/editTitle"
 
-        />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/white"
+        android:minHeight="48dp"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/ic_arrow_back_white"
+
+        app:tint="@color/purple_200" />
 </RelativeLayout>
