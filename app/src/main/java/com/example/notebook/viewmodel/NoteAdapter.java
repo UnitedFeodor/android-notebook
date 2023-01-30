@@ -16,6 +16,7 @@ import com.example.notebook.R;
 import com.example.notebook.constants.NoteConstants;
 import com.example.notebook.model.Note;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,33 +26,54 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
 
     // Store a member variable for the notes
-    private List<Note> mNotes;
-
+    private List<Note> mNotesView;
+    private List<Note> mNotesData;
     public List<Note> getNotesList() {
-        return mNotes;
+        return mNotesView;
     }
 
     public void setNotes(List<Note> mNotes) {
-        this.mNotes = mNotes;
+
+        this.mNotesView = mNotes;
+        mNotesData = new ArrayList<>(mNotes);
     }
     public void addToNotes(Note note) {
-        mNotes.add(note);
+
+        //mNotes.add(note);
+        mNotesData.add(note);
     }
 
     public void setNoteById(Note note) {
-        mNotes = mNotes.stream().map((n) -> {
+        /*mNotes = mNotes.stream().map((n) -> {
+            if (n.getNoteId().equals(note.getNoteId())) {
+                return note;
+            } else {
+                return n;
+            }
+        }).collect(Collectors.toList()); */
+        mNotesData = mNotesData.stream().map((n) -> {
             if (n.getNoteId().equals(note.getNoteId())) {
                 return note;
             } else {
                 return n;
             }
         }).collect(Collectors.toList());
-
     }
+
+    private boolean deleteItem(int position) {
+        mNotesData.remove(position);
+        mNotesView.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mNotesView.size());
+
+        //holder.itemView.setVisibility(View.GONE);
+        return  true;
+    } //TODO fix deletion addition setting
 
     // Pass in the contact array into the constructor
     public NoteAdapter(List<Note> notes) {
-        mNotes = notes;
+        mNotesView = notes;
+        mNotesData = new ArrayList<>(notes);
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -79,7 +101,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         holder.itemView.setOnLongClickListener(holder::onLongClick);
 
         // Get the data model based on position
-        Note note = mNotes.get(position);
+        Note note = mNotesView.get(position);
 
         // Set item views based on your views and data model
         TextView titleView = holder.title;
@@ -93,20 +115,14 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         button.setEnabled(contact.isOnline());*/
     }
 
-    // Returns the total count of items in the list
+    // Returns the total count of mNotes in the list
     @Override
     public int getItemCount() {
-        return mNotes.size();
+        return mNotesView.size();
     }
 
 
-    private boolean deleteItem(int position) {
-        mNotes.remove(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mNotes.size());
-        //holder.itemView.setVisibility(View.GONE);
-        return  true;
-    }
+
 
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
@@ -132,7 +148,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(view.getContext(), NoteActivity.class);
-            Note currNote = mNotes.get(getAdapterPosition());
+            Note currNote = mNotesView.get(getAdapterPosition());
             /*
             intent.putExtra(NoteConstants.NOTE_TITLE,currNote.getTitle());
             intent.putExtra(NoteConstants.NOTE_CONTENT,currNote.getContent());
@@ -156,6 +172,22 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
             return deleteItem(getAdapterPosition());
 
         }
+    }
+
+    // method for filtering our recyclerview mNotes.
+    public void filterList(String query) {
+        mNotesView.clear();
+        if(query.isEmpty()){
+            mNotesView.addAll(mNotesData);
+        } else{
+            query = query.toLowerCase();
+            for(Note item: mNotesData){
+                if(item.getTitle().toLowerCase().contains(query) || item.getContent().toLowerCase().contains(query)){
+                    mNotesView.add(item);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
 
