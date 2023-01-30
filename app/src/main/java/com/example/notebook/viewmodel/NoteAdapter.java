@@ -1,4 +1,4 @@
-package com.example.notebook.view;
+package com.example.notebook.viewmodel;
 
 import android.content.Context;
 import android.content.Intent;
@@ -52,6 +52,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         // map onClick activity
         holder.itemView.setOnClickListener(holder::onClick);
 
+        holder.itemView.setOnLongClickListener(holder::onLongClick);
+
         // Get the data model based on position
         Note note = mNotes.get(position);
 
@@ -74,7 +76,13 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
     }
 
 
-
+    private boolean deleteItem(int position) {
+        mNotes.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mNotes.size());
+        //holder.itemView.setVisibility(View.GONE);
+        return  true;
+    }
 
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
@@ -107,9 +115,12 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
         }
 
+
+
         @Override
         public boolean onLongClick(View view) {
-            return false;
+            return deleteItem(getAdapterPosition());
+
         }
     }
 

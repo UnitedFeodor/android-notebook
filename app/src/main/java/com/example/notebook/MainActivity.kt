@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notebook.model.Note
-import com.example.notebook.view.NoteAdapter
+import com.example.notebook.viewmodel.NoteAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
@@ -69,4 +69,5 @@ class MainActivity : AppCompatActivity() {
         // That's all!
 
     }
+
 }

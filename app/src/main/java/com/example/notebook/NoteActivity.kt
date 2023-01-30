@@ -20,6 +20,7 @@ class NoteActivity : AppCompatActivity() {
 
         backButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
+
             finish()
         }
 
