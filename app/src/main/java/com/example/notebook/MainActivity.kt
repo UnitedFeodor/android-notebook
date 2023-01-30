@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
         // Lookup the recyclerview in activity layout
         val rvContacts = findViewById<View>(R.id.recyclerView) as RecyclerView
-        // Initialize contacts
+        // Initialize notes
         notes = Note.createNotesList(20)
         // Create adapter passing in the sample user data
         val adapter = NoteAdapter(notes)
