@@ -1,10 +1,12 @@
 package com.example.notebook.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Note {
+public class Note implements Serializable {
+
 
     private String noteId = UUID.randomUUID().toString();
     private String title = "";

@@ -1,5 +1,6 @@
 package com.example.notebook.viewmodel;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import com.example.notebook.constants.NoteConstants;
 import com.example.notebook.model.Note;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 // Create the basic adapter extending from RecyclerView.Adapter
 // Note that we specify the custom ViewHolder which gives us access to our views
@@ -24,6 +26,28 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
     // Store a member variable for the notes
     private List<Note> mNotes;
+
+    public List<Note> getNotesList() {
+        return mNotes;
+    }
+
+    public void setNotes(List<Note> mNotes) {
+        this.mNotes = mNotes;
+    }
+    public void addToNotes(Note note) {
+        mNotes.add(note);
+    }
+
+    public void setNoteById(Note note) {
+        mNotes = mNotes.stream().map((n) -> {
+            if (n.getNoteId().equals(note.getNoteId())) {
+                return note;
+            } else {
+                return n;
+            }
+        }).collect(Collectors.toList());
+
+    }
 
     // Pass in the contact array into the constructor
     public NoteAdapter(List<Note> notes) {
@@ -108,9 +132,19 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(view.getContext(), NoteActivity.class);
-            intent.putExtra(NoteConstants.NOTE_TITLE,mNotes.get(getAdapterPosition()).getTitle());
-            intent.putExtra(NoteConstants.NOTE_CONTENT,mNotes.get(getAdapterPosition()).getContent());
-            view.getContext().startActivity(intent);
+            Note currNote = mNotes.get(getAdapterPosition());
+            /*
+            intent.putExtra(NoteConstants.NOTE_TITLE,currNote.getTitle());
+            intent.putExtra(NoteConstants.NOTE_CONTENT,currNote.getContent());
+            intent.putExtra(NoteConstants.NOTE_ID,currNote.getNoteId());
+
+             */
+
+            //intent.putExtra(NoteConstants.CURRENT_NOTE,Note());
+            intent.putExtra(NoteConstants.CURRENT_NOTE,currNote);
+            ((Activity)view.getContext()).startActivityForResult(intent, NoteConstants.REQUEST_CODE_ADD_TO_LIST);
+
+            //view.getContext().startActivity(intent);
 
 
         }
