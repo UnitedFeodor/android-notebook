@@ -1,9 +1,8 @@
 package com.example.notebook
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageView
 import android.widget.PopupMenu
@@ -17,8 +16,8 @@ import com.example.notebook.constants.NoteConstants
 import com.example.notebook.model.Note
 import com.example.notebook.viewmodel.NoteAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.io.*
 import java.util.*
-import java.util.Locale.filter
 import kotlin.collections.ArrayList
 
 
@@ -37,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        menuImage = findViewById(R.id.menuImage)
+        menuImage = findViewById(R.id.menuImage) //TODO save choice
         menuImage.setOnClickListener {
             val popupMenu = PopupMenu(this,menuImage)
             popupMenu.menuInflater.inflate(R.menu.menu,popupMenu.menu)
@@ -77,10 +76,11 @@ class MainActivity : AppCompatActivity() {
         // Lookup the recyclerview in activity layout
         rvNotes = findViewById<View>(R.id.recyclerView) as RecyclerView
         // Initialize notes
-        notes = Note.createNotesList(3)
+        notes = loadPrivately(applicationContext)
+        //notes = Note.createNotesList(3)
         //notes = ArrayList<Note>() //TODO load from memory and db
         // Create adapter passing in the sample user data
-        noteAdapter = NoteAdapter(notes)
+        noteAdapter = NoteAdapter(notes,this)
         // Attach the adapter to the recyclerview to populate items
         rvNotes.adapter = noteAdapter
         // Set layout manager to position the items
@@ -106,48 +106,75 @@ class MainActivity : AppCompatActivity() {
         })
 
     }
-/*
-    private fun filter(text: String) {
-        // creating a new array list to filter our data.
-        val filteredlist: ArrayList<Note> = ArrayList()
-
-        // running a for loop to compare elements.
-        for (item in notes) {
-            // checking if the entered string matched with any item of our recycler view.
-            if (item.title.lowercase(Locale.getDefault()).contains(text.lowercase(Locale.getDefault())) ||
-                item.content.lowercase(Locale.getDefault()).contains(text.lowercase(Locale.getDefault()))) {
-                // if the item is matched we are
-                // adding it to our filtered list.
-                filteredlist.add(item)
-            }
-        }
-        if (filteredlist.isEmpty()) {
-            // if no item is added in filtered list we are
-            // displaying a toast message as no data found.
-            Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show()
-        } else {
-            // at last we are passing that filtered
-            // list to our adapter class.
-            noteAdapter.filterList(filteredlist)
-        }
-    }*/
 
     override protected fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == NoteConstants.REQUEST_CODE_ADD_TO_LIST && resultCode == RESULT_OK) {
             val passedItem: Note? = data?.extras!![NoteConstants.CURRENT_NOTE] as Note?
             val noteAdapter = (rvNotes.adapter as NoteAdapter)
-            val sameId = noteAdapter.notesList.stream().filter{ it.noteId.equals(passedItem?.noteId)}.count()
+            val sameId = noteAdapter.notesViewList.stream().filter{ it.noteId.equals(passedItem?.noteId)}.count()
             if (sameId == 0L) { // new note added
                 noteAdapter.addToNotes(passedItem);
-                noteAdapter.notifyItemRangeChanged(noteAdapter.notesList.size,noteAdapter.notesList.size)
+                noteAdapter.notifyItemRangeChanged(noteAdapter.notesViewList.size,noteAdapter.notesViewList.size)
             } else {
                 noteAdapter.setNoteById(passedItem);
                 noteAdapter.notifyDataSetChanged();
             }
-            (rvNotes.adapter as NoteAdapter).filterList(searchView.query.toString())
+            noteAdapter.filterList(searchView.query.toString())
+            this.noteAdapter = noteAdapter
             // deal with the item yourself TODO save
+            savePrivately(applicationContext,noteAdapter.getmNotesData() as ArrayList<Note>)
         }
     }
 
+    private val DATA_FILE_NAME = "data.notes"
+    private val DIR_NAME = "notesApp"
+
+    fun savePrivately(context: Context,dataList: kotlin.collections.ArrayList<Note>) {
+
+        val fos = openFileOutput(DATA_FILE_NAME, Context.MODE_PRIVATE)
+        val oos = ObjectOutputStream(fos)
+        oos.writeObject(dataList)
+        oos.close()
+
+    }
+
+    fun loadPrivately(context: Context): kotlin.collections.ArrayList<Note> {
+        try {
+            val fis = openFileInput(DATA_FILE_NAME)
+            val ois = ObjectInputStream(fis)
+            try {
+                val notes: ArrayList<Note> = ois.readObject() as ArrayList<Note>
+                return notes
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val notes = ArrayList<Note>()
+                return notes
+            } finally {
+                fis.close()
+                ois.close()
+            }
+
+        } catch (e: FileNotFoundException) {
+            // Create directory into internal memory;
+            //val mydir: File = context.getDir(DIR_NAME, Context.MODE_PRIVATE)
+            // Get a file myfile within the dir mydir.
+            //val fileWithinMyDir = File(mydir, DATA_FILE_NAME)
+            e.printStackTrace()
+            val fos = openFileOutput(DATA_FILE_NAME, Context.MODE_PRIVATE)
+            val oos = ObjectOutputStream(fos)
+            oos.writeObject(ArrayList<Note>())
+            oos.close()
+            return ArrayList<Note>()
+        }
+
+
+    }
+
+
+    override fun onDestroy() {
+        val noteAdapter = (rvNotes.adapter as NoteAdapter)
+        savePrivately(applicationContext,noteAdapter.getmNotesData() as ArrayList<Note>)
+        super.onDestroy()
+    }
 }

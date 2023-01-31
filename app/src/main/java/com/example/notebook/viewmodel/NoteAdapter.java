@@ -9,8 +9,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.notebook.MainActivity;
 import com.example.notebook.NoteActivity;
 import com.example.notebook.R;
 import com.example.notebook.constants.NoteConstants;
@@ -28,7 +30,12 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
     // Store a member variable for the notes
     private List<Note> mNotesView;
     private List<Note> mNotesData;
-    public List<Note> getNotesList() {
+
+    public List<Note> getmNotesData() {
+        return mNotesData;
+    }
+
+    public List<Note> getNotesViewList() {
         return mNotesView;
     }
 
@@ -58,6 +65,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
                 return n;
             }
         }).collect(Collectors.toList());
+        //notifyDataSetChanged();
     }
 
     private boolean deleteItem(int position) {
@@ -66,14 +74,17 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mNotesView.size());
 
+        ((MainActivity)appCompatActivity).savePrivately(appCompatActivity.getApplicationContext(), (ArrayList<Note>) mNotesData);
         //holder.itemView.setVisibility(View.GONE);
         return  true;
     } //TODO fix deletion addition setting
 
+    private AppCompatActivity appCompatActivity;
     // Pass in the contact array into the constructor
-    public NoteAdapter(List<Note> notes) {
+    public NoteAdapter(List<Note> notes, AppCompatActivity activity) {
         mNotesView = notes;
         mNotesData = new ArrayList<>(notes);
+        appCompatActivity = activity;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
