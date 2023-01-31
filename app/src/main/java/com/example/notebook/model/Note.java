@@ -1,14 +1,18 @@
 package com.example.notebook.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
+@Entity
 public class Note implements Serializable {
 
-
-    private String noteId = UUID.randomUUID().toString();
+    @PrimaryKey
+    private final String noteId = UUID.randomUUID().toString();
     private String title = "";
     private String content = "";
 
@@ -54,7 +58,7 @@ public class Note implements Serializable {
     }
 
     public static ArrayList<Note> createNotesList(int numNotes) {
-        ArrayList<Note> notesList = new ArrayList<Note>();
+        ArrayList<Note> notesList = new ArrayList<>();
 
         for (int i = 1; i <= numNotes; i++) {
             StringBuilder content = new StringBuilder();

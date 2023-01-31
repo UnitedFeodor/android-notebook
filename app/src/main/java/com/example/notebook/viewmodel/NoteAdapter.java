@@ -74,7 +74,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mNotesView.size());
 
-        ((MainActivity)appCompatActivity).savePrivately(appCompatActivity.getApplicationContext(), (ArrayList<Note>) mNotesData);
+        ((MainActivity)appCompatActivity).savePrivately(appCompatActivity.getApplicationContext(), ((MainActivity) appCompatActivity).isSqlSave(),(ArrayList<Note>) mNotesData);
         //holder.itemView.setVisibility(View.GONE);
         return  true;
     } //TODO fix deletion addition setting

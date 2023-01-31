@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var notes: ArrayList<Note>
 
+    public var isSqlSave = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -42,20 +44,24 @@ class MainActivity : AppCompatActivity() {
             popupMenu.menuInflater.inflate(R.menu.menu,popupMenu.menu)
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
-                    R.id.menu_memory ->
+                    R.id.menu_memory -> {
                         Toast.makeText(
                             this@MainActivity,
                             "You Clicked : " + item.title,
                             Toast.LENGTH_SHORT
                         ).show()
-                    R.id.menu_sqlite ->
+                        isSqlSave = false;
+                    }
+                    R.id.menu_sqlite -> {
                         Toast.makeText(
                             this@MainActivity,
                             "You Clicked : " + item.title,
                             Toast.LENGTH_SHORT
                         ).show()
-
+                        isSqlSave = true;
+                    }
                 }
+                savePrivately(applicationContext,isSqlSave,noteAdapter.getmNotesData() as ArrayList<Note>)
                 true
             }
             popupMenu.show()
@@ -76,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         // Lookup the recyclerview in activity layout
         rvNotes = findViewById<View>(R.id.recyclerView) as RecyclerView
         // Initialize notes
-        notes = loadPrivately(applicationContext)
+        notes = loadPrivately(applicationContext,isSqlSave)
         //notes = Note.createNotesList(3)
         //notes = ArrayList<Note>() //TODO load from memory and db
         // Create adapter passing in the sample user data
@@ -123,58 +129,65 @@ class MainActivity : AppCompatActivity() {
             noteAdapter.filterList(searchView.query.toString())
             this.noteAdapter = noteAdapter
             // deal with the item yourself TODO save
-            savePrivately(applicationContext,noteAdapter.getmNotesData() as ArrayList<Note>)
+            savePrivately(applicationContext,isSqlSave,noteAdapter.getmNotesData() as ArrayList<Note>)
         }
     }
 
     private val DATA_FILE_NAME = "data.notes"
     private val DIR_NAME = "notesApp"
 
-    fun savePrivately(context: Context,dataList: kotlin.collections.ArrayList<Note>) {
+    fun savePrivately(context: Context,isSql: Boolean, dataList: kotlin.collections.ArrayList<Note>) {
+        if(!isSql) {
+            // TODO form memory only list
 
-        val fos = openFileOutput(DATA_FILE_NAME, Context.MODE_PRIVATE)
-        val oos = ObjectOutputStream(fos)
-        oos.writeObject(dataList)
-        oos.close()
-
-    }
-
-    fun loadPrivately(context: Context): kotlin.collections.ArrayList<Note> {
-        try {
-            val fis = openFileInput(DATA_FILE_NAME)
-            val ois = ObjectInputStream(fis)
-            try {
-                val notes: ArrayList<Note> = ois.readObject() as ArrayList<Note>
-                return notes
-            } catch (e: Exception) {
-                e.printStackTrace()
-                val notes = ArrayList<Note>()
-                return notes
-            } finally {
-                fis.close()
-                ois.close()
-            }
-
-        } catch (e: FileNotFoundException) {
-            // Create directory into internal memory;
-            //val mydir: File = context.getDir(DIR_NAME, Context.MODE_PRIVATE)
-            // Get a file myfile within the dir mydir.
-            //val fileWithinMyDir = File(mydir, DATA_FILE_NAME)
-            e.printStackTrace()
             val fos = openFileOutput(DATA_FILE_NAME, Context.MODE_PRIVATE)
             val oos = ObjectOutputStream(fos)
-            oos.writeObject(ArrayList<Note>())
+            oos.writeObject(dataList)
             oos.close()
-            return ArrayList<Note>()
+        } else {
+
+        } //TODO sql
+    }
+
+    fun loadPrivately(context: Context,isSql: Boolean): kotlin.collections.ArrayList<Note> {
+        if (!isSql) {
+            try {
+                val fis = openFileInput(DATA_FILE_NAME)
+                val ois = ObjectInputStream(fis)
+                try {
+                    val notes: ArrayList<Note> = ois.readObject() as ArrayList<Note>
+                    return notes
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    val notes = ArrayList<Note>()
+                    return notes
+                } finally {
+                    fis.close()
+                    ois.close()
+                }
+
+            } catch (e: FileNotFoundException) {
+                // Create directory into internal memory;
+                //val mydir: File = context.getDir(DIR_NAME, Context.MODE_PRIVATE)
+                // Get a file myfile within the dir mydir.
+                //val fileWithinMyDir = File(mydir, DATA_FILE_NAME)
+                e.printStackTrace()
+                val fos = openFileOutput(DATA_FILE_NAME, Context.MODE_PRIVATE)
+                val oos = ObjectOutputStream(fos)
+                oos.writeObject(ArrayList<Note>())
+                oos.close()
+                return ArrayList<Note>()
+            }
+
+        } else {
+            return kotlin.collections.ArrayList<Note>() //TODO sql
         }
-
-
     }
 
 
     override fun onDestroy() {
         val noteAdapter = (rvNotes.adapter as NoteAdapter)
-        savePrivately(applicationContext,noteAdapter.getmNotesData() as ArrayList<Note>)
+        savePrivately(applicationContext,isSqlSave,noteAdapter.getmNotesData() as ArrayList<Note>)
         super.onDestroy()
     }
 }
