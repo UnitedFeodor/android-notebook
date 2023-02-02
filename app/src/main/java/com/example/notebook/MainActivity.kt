@@ -13,9 +13,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notebook.constants.NoteConstants
+import com.example.notebook.dao.NoteDAO
+import com.example.notebook.database.DatabaseClient
+import com.example.notebook.database.NoteDatabase
 import com.example.notebook.model.Note
 import com.example.notebook.viewmodel.NoteAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -32,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var notes: ArrayList<Note>
 
+
     public var isSqlSave = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +51,7 @@ class MainActivity : AppCompatActivity() {
             val popupMenu = PopupMenu(this,menuImage)
             popupMenu.menuInflater.inflate(R.menu.menu,popupMenu.menu)
             popupMenu.setOnMenuItemClickListener { item ->
+                var isChanged = false;
                 when (item.itemId) {
                     R.id.menu_memory -> {
                         Toast.makeText(
@@ -50,6 +59,9 @@ class MainActivity : AppCompatActivity() {
                             "Save method : " + item.title,
                             Toast.LENGTH_SHORT
                         ).show()
+                        if(isSqlSave == true) {
+                            isChanged = true
+                        }
                         isSqlSave = false;
                     }
                     R.id.menu_sqlite -> {
@@ -58,10 +70,22 @@ class MainActivity : AppCompatActivity() {
                             "Save method : " + item.title,
                             Toast.LENGTH_SHORT
                         ).show()
+                        if(isSqlSave == false) {
+                            isChanged = true
+                        }
                         isSqlSave = true;
                     }
                 }
-                savePrivately(applicationContext,isSqlSave,noteAdapter.getmNotesData() as ArrayList<Note>)
+                if(isChanged) {
+                    savePrivately(
+                        applicationContext,
+                        !isSqlSave,
+                        noteAdapter.getmNotesData() as ArrayList<Note>
+                    )
+                    val notesLoaded = loadPrivately(applicationContext, isSqlSave)
+                    (rvNotes.adapter as NoteAdapter).setNotes(notesLoaded)
+                }
+
                 true
             }
             popupMenu.show()
@@ -144,9 +168,22 @@ class MainActivity : AppCompatActivity() {
             val oos = ObjectOutputStream(fos)
             oos.writeObject(dataList)
             oos.close()
-        } else {
+        } else { //TODO sql
 
-        } //TODO sql
+            val noteDB: NoteDatabase = NoteDatabase.getInstance(applicationContext)
+            val noteDAO: NoteDAO = noteDB.noteDao()
+
+
+            GlobalScope.launch {
+                noteDB.runInTransaction{
+
+                    for (note in dataList) {
+                        noteDAO.insert(note)
+                    }
+                }
+            }
+
+        }
     }
 
     fun loadPrivately(context: Context,isSql: Boolean): kotlin.collections.ArrayList<Note> {
@@ -179,8 +216,22 @@ class MainActivity : AppCompatActivity() {
                 return ArrayList<Note>()
             }
 
-        } else {
-            return kotlin.collections.ArrayList<Note>() //TODO sql
+        } else { //TODO sql
+            val noteDB: NoteDatabase = NoteDatabase.getInstance(applicationContext)
+            val noteDAO: NoteDAO = noteDB.noteDao()
+            var notes: ArrayList<Note>? = null
+            GlobalScope.launch {
+                noteDB.runInTransaction{
+                    notes = noteDAO.all as ArrayList<Note>
+                }
+            }
+
+            if (notes == null) {
+                return kotlin.collections.ArrayList<Note>()
+            } else {
+                return notes as ArrayList<Note>
+            }
+
         }
     }
 

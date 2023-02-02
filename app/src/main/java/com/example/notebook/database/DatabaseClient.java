@@ -9,11 +9,11 @@ public class DatabaseClient {
     private static DatabaseClient mInstance;
 
     //our app database object
-    private AppDatabase appDatabase;
+    private NoteDatabase noteDatabase;
 
     private DatabaseClient(Context mCtx) {
         this.mCtx = mCtx;
-        appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class, "Notes.db")
+        noteDatabase = Room.databaseBuilder(mCtx, NoteDatabase.class, "Notes.db")
                 .fallbackToDestructiveMigration()
                 .build();
     }
@@ -25,7 +25,7 @@ public class DatabaseClient {
         return mInstance;
     }
 
-    public AppDatabase getAppDatabase() {
-        return appDatabase;
+    public NoteDatabase getAppDatabase() {
+        return noteDatabase;
     }
 }

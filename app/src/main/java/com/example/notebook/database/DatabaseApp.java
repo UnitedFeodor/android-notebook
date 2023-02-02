@@ -6,18 +6,18 @@ import androidx.room.Room;
 
 public class DatabaseApp extends Application {
 
-    AppDatabase appDatabase;
+    NoteDatabase noteDatabase;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         // when upgrading versions, kill the original tables by using fallbackToDestructiveMigration()
-        appDatabase = Room.databaseBuilder(this, AppDatabase.class, AppDatabase.NAME).fallbackToDestructiveMigration().build();
+        noteDatabase = Room.databaseBuilder(this, NoteDatabase.class, NoteDatabase.NAME).fallbackToDestructiveMigration().build();
     }
 
-    public AppDatabase getAppDatabase() {
-        return appDatabase;
+    public NoteDatabase getAppDatabase() {
+        return noteDatabase;
     }
 
 }
