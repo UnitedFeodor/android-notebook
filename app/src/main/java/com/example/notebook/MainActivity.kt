@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.SearchView.*
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var menuImage: ImageView
     private lateinit var rvNotes: RecyclerView
     private lateinit var searchView: SearchView
+    private lateinit var saveType: TextView
 
     private lateinit var noteAdapter: NoteAdapter
 
@@ -45,6 +47,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        saveType = findViewById(R.id.saveMethod)
 
         menuImage = findViewById(R.id.menuImage) //TODO save choice
         menuImage.setOnClickListener {
@@ -59,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                             "Save method : " + item.title,
                             Toast.LENGTH_SHORT
                         ).show()
+                        saveType.setText(item.title)
                         if(isSqlSave == true) {
                             isChanged = true
                         }
@@ -70,6 +75,7 @@ class MainActivity : AppCompatActivity() {
                             "Save method : " + item.title,
                             Toast.LENGTH_SHORT
                         ).show()
+                        saveType.setText(item.title)
                         if(isSqlSave == false) {
                             isChanged = true
                         }

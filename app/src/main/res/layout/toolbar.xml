@@ -18,6 +18,17 @@
             android:textSize="20dp"
             android:textColor="@color/white"
             />
+        <TextView
+            android:id="@+id/saveMethod"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginEnd="30dp"
+            android:layout_toStartOf="@id/menuImage"
+            android:text="Memory"
+            android:textSize="20dp"
+            android:textColor="@color/white"
+            />
         <ImageView
             android:id="@+id/menuImage"
             android:layout_width="wrap_content"
