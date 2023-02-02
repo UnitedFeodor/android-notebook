@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
                     R.id.menu_memory -> {
                         Toast.makeText(
                             this@MainActivity,
-                            "You Clicked : " + item.title,
+                            "Save method : " + item.title,
                             Toast.LENGTH_SHORT
                         ).show()
                         isSqlSave = false;
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                     R.id.menu_sqlite -> {
                         Toast.makeText(
                             this@MainActivity,
-                            "You Clicked : " + item.title,
+                            "Save method : " + item.title,
                             Toast.LENGTH_SHORT
                         ).show()
                         isSqlSave = true;

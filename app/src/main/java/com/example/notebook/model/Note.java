@@ -1,7 +1,10 @@
 package com.example.notebook.model;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
+
+
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,11 +15,16 @@ import java.util.UUID;
 public class Note implements Serializable {
 
     @PrimaryKey
-    private final String noteId = UUID.randomUUID().toString();
+    @NonNull
+    private String noteId = UUID.randomUUID().toString();
+
     private String title = "";
     private String content = "";
 
     public Note() {
+        noteId = UUID.randomUUID().toString();
+        title = "";
+        content = "";
     }
 
     public Note(String title, String content) {
@@ -39,6 +47,9 @@ public class Note implements Serializable {
 
     public String getNoteId() {
         return noteId;
+    }
+    public void setNoteId(String id) {
+        this.noteId = id;
     }
 
     public String getTitle() {
