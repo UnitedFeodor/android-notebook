@@ -25,9 +25,15 @@ public interface NoteDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Note note);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAllNotes(List<Note> notes);
+
+
     @Update
     void update(Note note);
 
     @Delete
     void delete(Note note);
+    @Query("DELETE FROM note")
+    public void nukeTable();
 }

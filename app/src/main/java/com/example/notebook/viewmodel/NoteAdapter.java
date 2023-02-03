@@ -70,7 +70,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
     }
 
     private boolean deleteItem(int position) {
-        mNotesData.remove(position);
+        Note noteToDelete = mNotesView.get(position);
+        mNotesData.remove(noteToDelete);
+        //mNotesData.remove(position);
         mNotesView.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mNotesView.size());

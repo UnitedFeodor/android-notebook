@@ -3,6 +3,7 @@ package com.example.notebook
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
 import android.widget.ImageView
 import android.widget.PopupMenu
@@ -20,10 +21,7 @@ import com.example.notebook.database.NoteDatabase
 import com.example.notebook.model.Note
 import com.example.notebook.viewmodel.NoteAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.io.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -90,6 +88,7 @@ class MainActivity : AppCompatActivity() {
                     )
                     val notesLoaded = loadPrivately(applicationContext, isSqlSave)
                     (rvNotes.adapter as NoteAdapter).setNotes(notesLoaded)
+                    searchView.setQuery("",true)
                 }
 
                 true
@@ -160,6 +159,7 @@ class MainActivity : AppCompatActivity() {
             this.noteAdapter = noteAdapter
             // deal with the item yourself TODO save
             savePrivately(applicationContext,isSqlSave,noteAdapter.getmNotesData() as ArrayList<Note>)
+
         }
     }
 
@@ -178,17 +178,33 @@ class MainActivity : AppCompatActivity() {
 
             val noteDB: NoteDatabase = NoteDatabase.getInstance(applicationContext)
             val noteDAO: NoteDAO = noteDB.noteDao()
-
-
-            GlobalScope.launch {
+/*
+            val coro= GlobalScope
+            coro.launch {
+                //Looper.prepare()
+                //Toast.makeText(applicationContext,"before insert",Toast.LENGTH_SHORT)
+                //Looper.loop()
                 noteDB.runInTransaction{
 
                     for (note in dataList) {
                         noteDAO.insert(note)
                     }
                 }
-            }
-
+            } */
+            //var isInserted = false
+            //while(!isInserted) {
+                GlobalScope.launch {
+                    noteDB.runInTransaction {
+                        println("Task from runInTransaction save scope")
+                        /*for (note in dataList) {
+                            noteDAO.insert(note)
+                        }*/
+                        noteDAO.nukeTable()
+                        noteDAO.insertAllNotes(dataList)
+                    }
+                    //isInserted = true
+                }
+            //}
         }
     }
 
@@ -226,12 +242,24 @@ class MainActivity : AppCompatActivity() {
             val noteDB: NoteDatabase = NoteDatabase.getInstance(applicationContext)
             val noteDAO: NoteDAO = noteDB.noteDao()
             var notes: ArrayList<Note>? = null
-            GlobalScope.launch {
+            /*
+            val coro= GlobalScope
+            coro.launch {
+                //Looper.prepare()
+                //Toast.makeText(applicationContext,"before getAll",Toast.LENGTH_SHORT)
+                //Looper.loop()
                 noteDB.runInTransaction{
                     notes = noteDAO.all as ArrayList<Note>
                 }
+            }*/
+            while (notes == null) {
+                GlobalScope.launch {
+                    noteDB.runInTransaction {
+                        println("Task from runInTransaction load scope")
+                        notes = noteDAO.all as ArrayList<Note>
+                    }
+                }
             }
-
             if (notes == null) {
                 return kotlin.collections.ArrayList<Note>()
             } else {
