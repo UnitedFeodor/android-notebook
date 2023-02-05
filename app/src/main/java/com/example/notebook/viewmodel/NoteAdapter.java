@@ -18,14 +18,40 @@ import com.example.notebook.R;
 import com.example.notebook.constants.NoteConstants;
 import com.example.notebook.model.Note;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 // Create the basic adapter extending from RecyclerView.Adapter
 // Note that we specify the custom ViewHolder which gives us access to our views
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
+    private Comparator<Note> mComparator = new Comparator<Note>(){
+        @Override
+        public int compare(Note o1, Note o2) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss", Locale.ENGLISH);
+            Date date1 = null;
+            try {
+                date1 = format.parse(o1.getDate());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            Date date2 = null;
+            try {
+                date2 = format.parse(o2.getDate());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            return date2.compareTo(date1);
+        }
+
+
+    };
 
     // Store a member variable for the notes
     private List<Note> mNotesView;
@@ -40,7 +66,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
     }
 
     public void setNotes(List<Note> mNotes) {
-
+        mNotes.sort(mComparator);
         this.mNotesView = mNotes;
         mNotesData = new ArrayList<>(mNotes);
         notifyDataSetChanged();
@@ -49,6 +75,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
         //mNotes.add(note);
         mNotesData.add(note);
+        mNotesData.sort(mComparator);
+        notifyDataSetChanged();
     }
 
     public void setNoteById(Note note) {
@@ -66,7 +94,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
                 return n;
             }
         }).collect(Collectors.toList());
-        //notifyDataSetChanged();
+        mNotesData.sort(mComparator);
+        notifyDataSetChanged();
     }
 
     private boolean deleteItem(int position) {
@@ -74,17 +103,19 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         mNotesData.remove(noteToDelete);
         //mNotesData.remove(position);
         mNotesView.remove(position);
+        // maybe sort
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mNotesView.size());
 
         ((MainActivity)appCompatActivity).savePrivately(appCompatActivity.getApplicationContext(), ((MainActivity) appCompatActivity).isSqlSave(),(ArrayList<Note>) mNotesData);
         //holder.itemView.setVisibility(View.GONE);
         return  true;
-    } //TODO fix deletion addition setting
+    }
 
     private AppCompatActivity appCompatActivity;
     // Pass in the contact array into the constructor
     public NoteAdapter(List<Note> notes, AppCompatActivity activity) {
+        notes.sort(mComparator);
         mNotesView = notes;
         mNotesData = new ArrayList<>(notes);
         appCompatActivity = activity;
@@ -123,6 +154,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
         TextView contentView = holder.content;
         contentView.setText(note.getContent());
+
+        TextView dateView = holder.date;
+        dateView.setText(note.getDate());
         /*
         Button button = holder.messageButton;
         button.setText(contact.isOnline() ? "Message" : "Offline");
@@ -144,6 +178,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView title;
+
+        public TextView date;
         public TextView content;
 
 
@@ -156,6 +192,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
 
             title = (TextView) itemView.findViewById(R.id.noteTitle);
             content = (TextView) itemView.findViewById(R.id.noteContent);
+            date = (TextView) itemView.findViewById(R.id.noteDate);
         }
 
 

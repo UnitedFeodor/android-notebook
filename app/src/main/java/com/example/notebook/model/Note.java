@@ -7,7 +7,12 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -20,6 +25,8 @@ public class Note implements Serializable {
 
     private String title = "";
     private String content = "";
+
+    private String date = new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss").format(new Date());
 
     public Note() {
         noteId = UUID.randomUUID().toString();
@@ -66,6 +73,17 @@ public class Note implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String newDate) {
+        this.date = newDate;
+    }
+    public void setDate(Date newDate) {
+        this.date = new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss").format(newDate);
     }
 
     public static ArrayList<Note> createNotesList(int numNotes) {

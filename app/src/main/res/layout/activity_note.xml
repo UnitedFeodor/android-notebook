@@ -25,11 +25,22 @@
 
         tools:text="@tools:sample/cities" />
 
+    <TextView
+        android:id="@+id/viewDate"
+        android:layout_marginStart="8dp"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTitle"
+        android:textSize="15sp"
+        android:textColor="@color/purple_200"
+        />
+
     <EditText
         android:id="@+id/editNote"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/editTitle"
+        android:layout_below="@id/viewDate"
         android:inputType="textMultiLine"
 
         android:padding="9dp"

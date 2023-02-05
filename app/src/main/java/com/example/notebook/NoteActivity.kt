@@ -1,21 +1,16 @@
 package com.example.notebook
 
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.Toast
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.example.notebook.constants.NoteConstants
 import com.example.notebook.model.Note
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class NoteActivity : AppCompatActivity() {
@@ -30,6 +25,7 @@ class NoteActivity : AppCompatActivity() {
 
     private lateinit var noteContentEdit: EditText
     private lateinit var noteTitleEdit: EditText
+    private lateinit var noteDateView: TextView
     private lateinit var backButton: ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +40,7 @@ class NoteActivity : AppCompatActivity() {
 
         noteTitleEdit = findViewById(R.id.editTitle)
         noteContentEdit = findViewById(R.id.editNote)
-
-
+        noteDateView = findViewById(R.id.viewDate)
 
 
         val usedIntent = this.intent
@@ -56,7 +51,7 @@ class NoteActivity : AppCompatActivity() {
         }
         noteTitleEdit.setText(currentNote!!.title)
         noteContentEdit.setText(currentNote!!.content)
-
+        noteDateView.setText(currentNote!!.date)
 
 
         /*
@@ -130,6 +125,7 @@ class NoteActivity : AppCompatActivity() {
     override fun finish() {
         currentNote!!.title = noteTitleEdit.text.toString()
         currentNote!!.content = noteContentEdit.text.toString()
+        currentNote!!.date = SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss").format(Date())
         //currentNote.noteId =
 
         val returnIntent = Intent()
@@ -139,4 +135,6 @@ class NoteActivity : AppCompatActivity() {
         //By not passing the intent in the result, the calling activity will get null data.
         super.finish()
     }
+
+
 }
